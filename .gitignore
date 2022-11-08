@@ -14,5 +14,6 @@ raisimGymME491/env/data/*
 .vscode/*
 id_rsa
 */data/*
-raisimGymME491/env/bin/rsg*
+raisimGymME491/env/bin/aliengo_*
+raisimGymME491/env/bin/rsg_*
 data/**

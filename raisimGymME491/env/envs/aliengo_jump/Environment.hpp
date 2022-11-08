@@ -27,6 +27,16 @@ class ENVIRONMENT : public RaisimGymEnv {
     aliengo_->setControlMode(raisim::ControlMode::PD_PLUS_FEEDFORWARD_TORQUE);
     world_->addGround();
 
+    /// Spawn obstacles
+    for (int i=0; i<num_obstacle; i++) {
+      /// add box
+      auto obs_tmp = world_->addBox(2, 4, 0.05, 1);
+      obs_tmp->setBodyType(BodyType::STATIC); /// BodyType STATIC : mass = infinite, velocity = 0 (does not move)
+
+      /// add obstacle pointer into obstacle set
+      obstacles_.push_back(obs_tmp);
+    }
+
     /// get robot data
     gcDim_ = aliengo_->getGeneralizedCoordinateDim();
     gvDim_ = aliengo_->getDOF();
@@ -35,10 +45,12 @@ class ENVIRONMENT : public RaisimGymEnv {
     /// initialize containers
     gc_.setZero(gcDim_); gc_init_.setZero(gcDim_);
     gv_.setZero(gvDim_); gv_init_.setZero(gvDim_);
+    gc_nominal_.setZero(gcDim_);
     pTarget_.setZero(gcDim_); vTarget_.setZero(gvDim_); pTarget12_.setZero(nJoints_);
 
     /// this is nominal configuration of aliengo
-    gc_init_ << 0, 0, 0.54, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8;
+    gc_nominal_ << 0, 0, 0.54, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8;
+    gc_init_ = gc_nominal_;
 
     /// set pd gains
     Eigen::VectorXd jointPgain(gvDim_), jointDgain(gvDim_);
@@ -67,17 +79,24 @@ class ENVIRONMENT : public RaisimGymEnv {
     footIndices_.insert(aliengo_->getBodyIdx("RR_calf"));
     footIndices_.insert(aliengo_->getBodyIdx("RL_calf"));
 
+
+
+
     /// visualize if it is the first environment
     if (visualizable_) {
       server_ = std::make_unique<raisim::RaisimServer>(world_.get());
       server_->launchServer();
       server_->focusOn(aliengo_);
+      /// add Visual sphere
+      goal_sphere = server_->addVisualSphere("goal_obj_", 0.3, 1, 0, 0, 0.7);
     }
   }
 
   void init() final { }
 
   void reset() final {
+    obstacleReset();
+    gc_init_ = update_gc_init(gc_nominal_);
     aliengo_->setState(gc_init_, gv_init_);
     updateObservation();
   }
@@ -94,6 +113,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     for(int i=0; i< int(control_dt_ / simulation_dt_ + 1e-10); i++){
       if(server_) server_->lockVisualizationServerMutex();
       world_->integrate();
+      obstacleUpdate();
       if(server_) server_->unlockVisualizationServerMutex();
     }
 
@@ -114,11 +134,21 @@ class ENVIRONMENT : public RaisimGymEnv {
     bodyLinearVel_ = rot.e().transpose() * gv_.segment(0, 3);
     bodyAngularVel_ = rot.e().transpose() * gv_.segment(3, 3);
 
+    goal_position = obstacles_.back()->getPosition();
+    if(visualizable_)
+      goal_sphere->setPosition(goal_position);
+
     obDouble_ << gc_[2], /// body height
         rot.e().row(2).transpose(), /// body orientation
         gc_.tail(12), /// joint angles
         bodyLinearVel_, bodyAngularVel_, /// body linear&angular velocity
         gv_.tail(12); /// joint velocity
+  }
+
+  Eigen::VectorXd update_gc_init (Eigen::VectorXd gc_nominal) {
+    Eigen::VectorXd gc_init = gc_nominal;
+    gc_init[2] += obstacle_heights.front();
+    return gc_init;
   }
 
   void observe(Eigen::Ref<EigenVec> ob) final {
@@ -134,21 +164,58 @@ class ENVIRONMENT : public RaisimGymEnv {
       if(footIndices_.find(contact.getlocalBodyIndex()) == footIndices_.end())
         return true;
 
+
+
     terminalReward = 0.f;
     return false;
   }
 
   void curriculumUpdate() { };
 
+  void obstacleUpdate() {
+    double velocity = 0.4 * simulation_dt_;
+    double gap_offset = 0.4;
+    if (std::abs(obstacle_x_pos.back() - obstacles_.back()->getPosition()(0)) > gap_offset)
+      velocity *= -1;
+
+    Eigen::Vector3d position_offset={velocity, 0, 0};
+    position_offset += obstacles_.back()->getPosition();
+    obstacles_.back()->setPosition(position_offset);
+  }
+
+  void obstacleReset() {
+    obstacle_heights.clear();
+    obstacle_x_pos.clear();
+    for (int i=0; i<num_obstacle; i++) {
+      /// Set the vertical & horizontal gap
+      double height = 1.0 + (i != 0) * 0.05 * normDist_(gen_); /// add noise
+      double gap = 0.2*i*(i+1)/2 + (i != 0) * 0.05 * normDist_(gen_); /// add noise
+
+      /// Set position
+      obstacles_[i]->setPosition(2*i + gap, 0, height);
+
+      /// add obstacle pointer into obstacle set
+      obstacle_heights.push_back(height);
+      obstacle_x_pos.push_back(2*i + gap);
+    }
+  };
+
  private:
   int gcDim_, gvDim_, nJoints_;
   bool visualizable_ = false;
   raisim::ArticulatedSystem* aliengo_;
-  Eigen::VectorXd gc_init_, gv_init_, gc_, gv_, pTarget_, pTarget12_, vTarget_;
+  Eigen::VectorXd gc_init_, gv_init_, gc_nominal_, gc_, gv_, pTarget_, pTarget12_, vTarget_;
   double terminalRewardCoeff_ = -10.;
   Eigen::VectorXd actionMean_, actionStd_, obDouble_;
   Eigen::Vector3d bodyLinearVel_, bodyAngularVel_;
   std::set<size_t> footIndices_;
+  int num_obstacle = 5;
+  std::vector<raisim::Box *> obstacles_;
+  std::vector<double> obstacle_heights;
+  std::vector<double> obstacle_x_pos;
+  raisim::Visuals *goal_sphere;
+  Eigen::Vector3d goal_position;
+
 
   /// these variables are not in use. They are placed to show you how to create a random number sampler.
   std::normal_distribution<double> normDist_;
