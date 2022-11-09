@@ -8,19 +8,19 @@ Project Overview
 
 Project Objectvie
 -----
-This project's goal is to **cross the stepping stone (e.g. There are gaps between the ground) and
-reach the goal** 
-which is represented as a red sphere. 
+This project's goal is to train an agent that can **cross stepping stones and reach the goal**.
+The goal is represented as a red sphere in the figure. 
 You can refer RaiSim document website: [raisim_website](http://raisim.com/index.html). 
-For your convenience, a basic template for the project is provided as a git repository. [git_repo](https://github.com/jhwangbo/ME491_2022_project). 
+For your convenience, a basic template for the project is provided in the git repository. [git_repo](https://github.com/jhwangbo/ME491_2022_project). 
 For evaluation, you need to **submit the video file** to represent your result.
 
 Project Rule
 -----
-1. There is no limitation on observation (You can use any information given RaiSim engine)
-2. There is no limitation on using other sources
-3. ### If you have any question, Please upload Issues on [git_repo](https://github.com/jhwangbo/ME491_2022_project). (We do not allow others)
-4. For validating, **discrete environment condition** will be given 3 days before the submit date. (Exact gap, height will be provided)
+1. You can use any information given by the RaiSim engine.
+2. You cannot modify the dynamics. Everyone should play in the same environment.
+4. ### If you have any question, please upload issues on [git_repo](https://github.com/jhwangbo/ME491_2022_project). (We do not allow others)
+5. The competition map will be provided 3 days before the submission date. You should have a general controller ready for the competition before that date. You will have 3 days to record a video for the submission.
+6. You will also submit a runnable code. Your code should not depend on external libraries except the ones included.
 
 
 Environment Condition
@@ -34,25 +34,20 @@ every 1 second.
 
 Submission
 ------
-| Submission       | Date | Format           |
-|------------------|------|------------------|
-| Report Deadline  | ?    | pdf              |
-| Project Deadline | ?    | mp4 (Video Only) |
+| Submission       | Date |
+|------------------|------|
+| Report, video, code submission  | before the competition (Dec 14th. 1pm) |
 
-Project Result
+
+Competition
 -----
-Please submit a mp4 file named **'(student number)_(name).mp4'**  Among several videos, We'll choose one that gives the best result.
-
-#### **The project will be conducted instead of the final exam, and the project results will be announced on the day of the final exam.**
+We will watch the videos together on Dec 14th at 1pm.
 
 Report
 -----
 Final report should contain these contents:
-1. ~~
-2. ~~
-3. ~~ (T.B.D)
+1. Problem definition (describe the MDP)
+2. What algorithms did you use? How do they work (i.e., theory)?
+3. Results. What contributed to the final performance the most?
 
-
-Visualization
------
-Launch 
+The final report should not be more than 4 pages
