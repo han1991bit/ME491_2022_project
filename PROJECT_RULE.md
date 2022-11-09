@@ -30,7 +30,8 @@ Environment Condition
 3. The vertical distance (z-directional) of the surfaces : **1.0 + 0.01*N(0,1) m**  
 4. The **last flat surface moves bi-directionally (x-directional) at a speed of 40cm/sec**. The direction might be changed 
 every 1 second.
-5. The goal position (red sphere) is identical with last one's center.
+5. The goal position (red sphere) is identical with last one's center. 
+6. You can check the success condition by reffering to the **_isSuccessState()_** function. (**We allow position difference (xy-plane) between robot base and goal within 5cm**)
 
 Submission
 ------

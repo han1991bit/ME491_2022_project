@@ -135,6 +135,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     bodyAngularVel_ = rot.e().transpose() * gv_.segment(3, 3);
 
     goal_position = obstacles_.back()->getPosition();
+    is_success_ = isSucessState();
     if(visualizable_)
       goal_sphere->setPosition(goal_position);
 
@@ -167,6 +168,14 @@ class ENVIRONMENT : public RaisimGymEnv {
 
 
     terminalReward = 0.f;
+    return false;
+  }
+
+  bool isSucessState() {
+    double offset = 0.05; //Verifying success state
+    double distance = (aliengo_->getBasePosition().e() - goal_position).head(2).squaredNorm(); // distance between robot base pos, goal pos
+    if (distance <= offset)
+      return true;
     return false;
   }
 
@@ -215,6 +224,7 @@ class ENVIRONMENT : public RaisimGymEnv {
   std::vector<double> obstacle_x_pos;
   raisim::Visuals *goal_sphere;
   Eigen::Vector3d goal_position;
+  bool is_success_ = false;
 
 
   /// these variables are not in use. They are placed to show you how to create a random number sampler.
