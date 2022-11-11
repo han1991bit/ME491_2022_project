@@ -1,5 +1,5 @@
 from ruamel.yaml import YAML, dump, RoundTripDumper
-from raisimGymME491.env.bin import rsg_anymal
+from raisimGymME491.env.bin import aliengo_jump
 from raisimGymME491.env.RaisimGymVecEnv import RaisimGymVecEnv as VecEnv
 import raisimGymME491.algo.ppo.module as ppo_module
 import os
@@ -24,7 +24,7 @@ cfg = YAML().load(open(task_path + "/cfg.yaml", 'r'))
 # create environment from the configuration file
 cfg['environment']['num_envs'] = 1
 
-env = VecEnv(rsg_anymal.RaisimGymEnv(home_path + "/rsc", dump(cfg['environment'], Dumper=RoundTripDumper)), cfg['environment'])
+env = VecEnv(aliengo_jump.RaisimGymEnv(home_path + "/rsc", dump(cfg['environment'], Dumper=RoundTripDumper)), cfg['environment'])
 
 # shortcuts
 ob_dim = env.num_obs

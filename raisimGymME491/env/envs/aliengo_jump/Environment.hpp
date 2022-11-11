@@ -182,14 +182,29 @@ class ENVIRONMENT : public RaisimGymEnv {
   void curriculumUpdate() { };
 
   void obstacleUpdate() {
-    double velocity = 0.4 * simulation_dt_;
-    double gap_offset = 0.4;
+    double velocity = 0.6 * simulation_dt_;
+    double gap_offset = 0.6;
+
     if (std::abs(obstacle_x_pos.back() - obstacles_.back()->getPosition()(0)) > gap_offset)
       velocity *= -1;
 
     Eigen::Vector3d position_offset={velocity, 0, 0};
     position_offset += obstacles_.back()->getPosition();
     obstacles_.back()->setPosition(position_offset);
+
+    /// For angular perturbation (do not use)
+//    double angular_velocity = M_PI/18 * simulation_dt_;
+//    double angular_gap_offset = M_PI/36; // 5 degree
+//
+//    if (std::abs(obstacles_.back()->getOrientation().e().row(0)(2)) > std::abs(sin(angular_gap_offset)))
+//      angular_velocity *= -1;
+//
+//    Eigen::Matrix3d rotation_offset;
+//    rotation_offset << cos(angular_velocity), 0, sin(angular_velocity),
+//        0, 1, 0,
+//        -sin(angular_velocity), 0, cos(angular_velocity);
+//    rotation_offset = rotation_offset*obstacles_.back()->getOrientation().e();
+//    obstacles_.back()->setOrientation(rotation_offset);
   }
 
   void obstacleReset() {
@@ -197,8 +212,10 @@ class ENVIRONMENT : public RaisimGymEnv {
     obstacle_x_pos.clear();
     for (int i=0; i<num_obstacle; i++) {
       /// Set the vertical & horizontal gap
-      double height = 1.0 + (i != 0) * 0.05 * normDist_(gen_); /// add noise
-      double gap = 0.2*i*(i+1)/2 + (i != 0) * 0.05 * normDist_(gen_); /// add noise
+      double height;
+      double random_ = 0.;
+      height = 1.0 + (i != 0) * (0.05*i) * normDist_(gen_); /// add noise
+      double gap = 0.25*i*(i+1)/2 + (i != 0) * 0.05 * normDist_(gen_); /// add noise
 
       /// Set position
       obstacles_[i]->setPosition(2*i + gap, 0, height);
