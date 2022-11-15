@@ -186,7 +186,14 @@ class ENVIRONMENT : public RaisimGymEnv {
     double gap_offset = 0.6;
 
     if (std::abs(obstacle_x_pos.back() - obstacles_.back()->getPosition()(0)) > gap_offset)
+    {
       velocity *= -1;
+      while (std::abs(obstacle_x_pos.back() - obstacles_.back()->getPosition()(0)) > gap_offset) {
+        Eigen::Vector3d position_offset={velocity, 0, 0};
+        position_offset += obstacles_.back()->getPosition();
+        obstacles_.back()->setPosition(position_offset);
+      }
+    }
 
     Eigen::Vector3d position_offset={velocity, 0, 0};
     position_offset += obstacles_.back()->getPosition();
