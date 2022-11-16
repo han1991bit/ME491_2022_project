@@ -182,9 +182,7 @@ class ENVIRONMENT : public RaisimGymEnv {
   void curriculumUpdate() { };
 
   void obstacleUpdate() {
-    double velocity = 0.6 * simulation_dt_;
     double gap_offset = 0.6;
-
     if (std::abs(obstacle_x_pos.back() - obstacles_.back()->getPosition()(0)) > gap_offset)
     {
       velocity *= -1;
@@ -234,6 +232,7 @@ class ENVIRONMENT : public RaisimGymEnv {
   };
 
  private:
+  double velocity = 0.6 * simulation_dt_;
   int gcDim_, gvDim_, nJoints_;
   bool visualizable_ = false;
   raisim::ArticulatedSystem* aliengo_;
