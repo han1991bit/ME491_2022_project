@@ -16,7 +16,7 @@ args = parser.parse_args()
 
 # directories
 task_path = os.path.dirname(os.path.realpath(__file__))
-home_path = task_path + "/../../../../.."
+home_path = task_path + "/../../.."
 
 # config
 cfg = YAML().load(open(task_path + "/cfg.yaml", 'r'))
@@ -24,7 +24,7 @@ cfg = YAML().load(open(task_path + "/cfg.yaml", 'r'))
 # create environment from the configuration file
 cfg['environment']['num_envs'] = 1
 
-env = VecEnv(aliengo_jump.RaisimGymEnv(home_path + "/rsc", dump(cfg['environment'], Dumper=RoundTripDumper)), cfg['environment'])
+env = VecEnv(aliengo_jump.RaisimGymEnv(home_path, dump(cfg['environment'], Dumper=RoundTripDumper)), cfg['environment'])
 
 # shortcuts
 ob_dim = env.num_obs
