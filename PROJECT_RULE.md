@@ -28,8 +28,7 @@ Environment Condition
 1. There are total 5 flat surfaces (3m x 6m x 0.1m)
 2. The horizontal gaps (x-directional) begtween the grounds are 25cm, 50cm, 75cm, 100cm each. In addition, there is random noise follows (5cm * N(0, 1)) that adds to the gap distance. 
 3. The vertical distance (z-directional) of the surfaces : **1.0 + 0.05*(n)*N(0,1) m** (5cm, 10cm, 15cm, 20cm each)  
-4. The **last flat surface moves bi-directionally (x-directional) at a speed of 60cm/sec**. The direction might be changed 
-every 1 second.
+4. The **last flat surface moves bi-directionally (x-directional) at a speed of 60cm/sec**. The direction might be changed when the distance from initial position to current position is over 60cm. **i.e.) The final gap distance is under 40~160cm, velocity is 60cm/s**
 5. The goal position (red sphere) is identical with last one's center. 
 6. You can check the success condition by reffering to the **_isSuccessState()_** function. (**We allow position difference (xy-plane) between robot base and goal within 5cm**)
 
