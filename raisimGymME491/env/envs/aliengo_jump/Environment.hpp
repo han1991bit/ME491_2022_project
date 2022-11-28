@@ -165,7 +165,8 @@ class ENVIRONMENT : public RaisimGymEnv {
       if(footIndices_.find(contact.getlocalBodyIndex()) == footIndices_.end())
         return true;
 
-
+    if (is_success_)
+      return true;
 
     terminalReward = 0.f;
     return false;
