@@ -112,7 +112,6 @@ for update in range(1000000):
                 wait_time = cfg['environment']['control_dt'] - (frame_end-frame_start)
                 if wait_time > 0.:
                     time.sleep(wait_time)
-
         env.stop_video_recording()
         env.turn_off_visualization()
 

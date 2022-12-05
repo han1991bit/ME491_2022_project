@@ -75,9 +75,9 @@ class VectorizedEnvironment {
   }
 
   // resets all environments and returns observation
-  void reset() {
+  void reset(bool test) {
     for (auto env: environments_)
-      env->reset();
+      env->reset(test);
   }
 
   void observe(Eigen::Ref<EigenRowMajorMat> &ob, bool updateStatistics) {
@@ -92,10 +92,11 @@ class VectorizedEnvironment {
 
   void step(Eigen::Ref<EigenRowMajorMat> &action,
             Eigen::Ref<EigenVec> &reward,
-            Eigen::Ref<EigenBoolVec> &done) {
+            Eigen::Ref<EigenBoolVec> &done,
+            bool test) {
 #pragma omp parallel for schedule(auto)
     for (int i = 0; i < num_envs_; i++)
-      perAgentStep(i, action, reward, done);
+      perAgentStep(i, action, reward, done, test);
   }
 
   void turnOnVisualization() { if(render_) environments_[0]->turnOnVisualization(); }
@@ -172,7 +173,8 @@ class VectorizedEnvironment {
   inline void perAgentStep(int agentId,
                            Eigen::Ref<EigenRowMajorMat> &action,
                            Eigen::Ref<EigenVec> &reward,
-                           Eigen::Ref<EigenBoolVec> &done) {
+                           Eigen::Ref<EigenBoolVec> &done,
+                           bool test) {
     reward[agentId] = environments_[agentId]->step(action.row(agentId));
     rewardInformation_[agentId] = environments_[agentId]->getRewards().getStdMap();
 
@@ -180,7 +182,7 @@ class VectorizedEnvironment {
     done[agentId] = environments_[agentId]->isTerminalState(terminalReward);
 
     if (done[agentId]) {
-      environments_[agentId]->reset();
+      environments_[agentId]->reset(test);
       reward[agentId] += terminalReward;
     }
   }

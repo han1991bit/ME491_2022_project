@@ -39,7 +39,7 @@ if weight_path == "":
 else:
     print("Loaded weight from {}\n".format(weight_path))
     start = time.time()
-    env.reset()
+    env.reset(test=True)
     reward_ll_sum = 0
     done_sum = 0
     average_dones = 0.
@@ -61,7 +61,7 @@ else:
         time.sleep(0.01)
         obs = env.observe(False)
         action_ll = loaded_graph.architecture(torch.from_numpy(obs).cpu())
-        reward_ll, dones = env.step(action_ll.cpu().detach().numpy())
+        reward_ll, dones = env.step(action_ll.cpu().detach().numpy(), test=True)
         reward_ll_sum = reward_ll_sum + reward_ll[0]
         if dones or step == max_steps - 1:
             print('----------------------------------------------------')
@@ -72,5 +72,5 @@ else:
             reward_ll_sum = 0.0
 
     env.turn_off_visualization()
-    env.reset()
+    env.reset(test=True)
     print("Finished at the maximum visualization steps")

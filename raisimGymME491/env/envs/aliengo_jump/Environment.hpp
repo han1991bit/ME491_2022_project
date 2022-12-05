@@ -94,8 +94,8 @@ class ENVIRONMENT : public RaisimGymEnv {
 
   void init() final { }
 
-  void reset() final {
-    obstacleReset();
+  void reset(bool test=false) final {
+    obstacleReset(test);
     gc_init_ = update_gc_init(gc_nominal_);
     aliengo_->setState(gc_init_, gv_init_);
     updateObservation();
@@ -174,7 +174,7 @@ class ENVIRONMENT : public RaisimGymEnv {
 
   bool isSucessState() {
     double offset = 0.05; //Verifying success state
-    double distance = (aliengo_->getBasePosition().e() - goal_position).head(2).squaredNorm(); // distance between robot base pos, goal pos
+    double distance = (aliengo_->getBasePosition().e() - goal_position).head(2).norm(); // distance between robot base pos, goal pos
     if (distance <= offset)
       return true;
     return false;
@@ -213,23 +213,49 @@ class ENVIRONMENT : public RaisimGymEnv {
 //    obstacles_.back()->setOrientation(rotation_offset);
   }
 
-  void obstacleReset() {
+  void obstacleReset(bool test=false) {
+
     obstacle_heights.clear();
     obstacle_x_pos.clear();
-    for (int i=0; i<num_obstacle; i++) {
-      /// Set the vertical & horizontal gap
-      double height;
-      double random_ = 0.;
-      height = 1.0 + (i != 0) * (0.05*i) * normDist_(gen_); /// add noise
-      double gap = 0.25*i*(i+1)/2 + (i != 0) * 0.05 * normDist_(gen_); /// add noise
+    double height;
+    double random_ = 0.;
+    double gap;
+    /// For test
+    if (test) {
+      std::vector<double> height_batch = {1.0, 1.0, 1.0+0.12, 1.0-0.15, 1.0+0.3};
+      std::vector<double> gap_batch = {0, 0.25+0.03, 0.75-0.02, 1.5+0.05, 2.5+0.01};
+      for (int i = 0; i < num_obstacle; i++) {
+        /// Set the vertical & horizontal gap
+        height = height_batch[i]; /// add noise
+        gap = gap_batch[i];
 
-      /// Set position
-      obstacles_[i]->setPosition(2*i + gap, 0, height);
+        /// Set position
+        obstacles_[i]->setPosition(2 * i + gap, 0, height);
 
-      /// add obstacle pointer into obstacle set
-      obstacle_heights.push_back(height);
-      obstacle_x_pos.push_back(2*i + gap);
+        /// add obstacle pointer into obstacle set
+        obstacle_heights.push_back(height);
+        obstacle_x_pos.push_back(2 * i + gap);
+      }
     }
+
+    else
+    {
+        for (int i=0; i<num_obstacle; i++) {
+          /// Set the vertical & horizontal gap
+          height = 1.0 + (i != 0) * (0.05*i) * normDist_(gen_); /// add noise
+          gap = 0.25*i*(i+1)/2 + (i != 0) * 0.05 * normDist_(gen_); /// add noise
+
+          /// Set position
+          obstacles_[i]->setPosition(2*i + gap, 0, height);
+
+          /// add obstacle pointer into obstacle set
+          obstacle_heights.push_back(height);
+          obstacle_x_pos.push_back(2*i + gap);
+        }
+    }
+
+
+
   };
 
  private:

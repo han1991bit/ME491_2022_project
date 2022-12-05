@@ -44,8 +44,8 @@ class RaisimGymVecEnv:
     def stop_video_recording(self):
         self.wrapper.stopRecordingVideo()
 
-    def step(self, action):
-        self.wrapper.step(action, self._reward, self._done)
+    def step(self, action, test=False):
+        self.wrapper.step(action, self._reward, self._done, test)
         return self._reward.copy(), self._done.copy()
 
     def load_scaling(self, dir_name, iteration, count=1e5):
@@ -67,9 +67,9 @@ class RaisimGymVecEnv:
         self.wrapper.observe(self._observation, update_statistics)
         return self._observation
 
-    def reset(self):
+    def reset(self, test=False):
         self._reward = np.zeros(self.num_envs, dtype=np.float32)
-        self.wrapper.reset()
+        self.wrapper.reset(test)
 
     def close(self):
         self.wrapper.close()
