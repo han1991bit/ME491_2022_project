@@ -19,11 +19,11 @@ environment:
     touchGround:
       coeff: -10
     heading:
-      coeff: 1
+      coeff: 10
     touchTarget:
       coeff: 10
     test:
-      coeff: 1
+      coeff: 0
 
 architecture:
   policy_net: [128, 128]

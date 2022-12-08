@@ -123,7 +123,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     rewards_.record("forwardVel", std::min(4.0, bodyLinearVel_[0]));
     rewards_.record("heading", 1/goal_dist_);
     rewards_.record("touchGround", touch_ground_);
-    // rewards_.record("test", 100);
+    rewards_.record("test", 1);
 
     return rewards_.sum();
   }
@@ -171,6 +171,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     /// if the contact body is not feet
     for(auto& contact: aliengo_->getContacts())
       if(footIndices_.find(contact.getlocalBodyIndex()) == footIndices_.end())
+        touch_ground_ = 1;
         return true;
 
     if (is_success_)
