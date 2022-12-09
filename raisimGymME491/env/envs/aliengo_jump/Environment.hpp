@@ -121,6 +121,7 @@ class ENVIRONMENT : public RaisimGymEnv {
 
     rewards_.record("torque", aliengo_->getGeneralizedForce().squaredNorm());
     rewards_.record("forwardVel", std::min(4.0, bodyLinearVel_[0]));
+    rewards_.record("test", 1);
 
     return rewards_.sum();
   }

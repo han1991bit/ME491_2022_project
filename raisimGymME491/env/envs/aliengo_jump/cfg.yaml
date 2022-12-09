@@ -22,6 +22,8 @@ environment:
       coeff: 1
     touchTarget:
       coeff: 10
+    test:
+      coeff: 100
 
 architecture:
   policy_net: [128, 128]
