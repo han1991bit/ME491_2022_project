@@ -95,7 +95,7 @@ class ENVIRONMENT : public RaisimGymEnv {
   void init() final { }
 
   void reset(bool test=false) final {
-    obstacleReset(test);
+    obstacleReset(true);
     gc_init_ = update_gc_init(gc_nominal_);
     aliengo_->setState(gc_init_, gv_init_);
     updateObservation();

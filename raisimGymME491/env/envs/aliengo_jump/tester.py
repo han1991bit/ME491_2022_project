@@ -31,8 +31,8 @@ ob_dim = env.num_obs
 act_dim = env.num_acts
 
 weight_path = args.weight
-iteration_number = weight_path.rsplit('/', 1)[1].split('_', 1)[1].rsplit('.', 1)[0]
-weight_dir = weight_path.rsplit('/', 1)[0] + '/'
+iteration_number = weight_path.rsplit('\\', 1)[1].split('_', 1)[1].rsplit('.', 1)[0]
+weight_dir = weight_path.rsplit('\\', 1)[0] + '/'
 
 if weight_path == "":
     print("Can't find trained weight, please provide a trained weight with --weight switch\n")
@@ -55,13 +55,15 @@ else:
     env.turn_on_visualization()
 
     # max_steps = 1000000
-    max_steps = 1000 ## 10 secs
+    max_steps = 400 ## 10 secs: 1000
 
     for step in range(max_steps):
         time.sleep(0.01)
         obs = env.observe(False)
         action_ll = loaded_graph.architecture(torch.from_numpy(obs).cpu())
         reward_ll, dones = env.step(action_ll.cpu().detach().numpy(), test=True)
+        print(dones)
+        print(reward_ll)
         reward_ll_sum = reward_ll_sum + reward_ll[0]
         if dones or step == max_steps - 1:
             print('----------------------------------------------------')

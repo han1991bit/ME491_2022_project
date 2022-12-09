@@ -3,6 +3,7 @@ from raisimGymME491.env.RaisimGymVecEnv import RaisimGymVecEnv as VecEnv
 from raisimGymME491.helper.raisim_gym_helper import ConfigurationSaver, load_param, tensorboard_launcher
 from raisimGymME491.env.bin.aliengo_jump import NormalSampler
 from raisimGymME491.env.bin.aliengo_jump import RaisimGymEnv
+from raisimGymME491.env.bin import aliengo_jump
 import os
 import math
 import time
@@ -82,7 +83,7 @@ if mode == 'retrain':
 
 for update in range(1000000):
     start = time.time()
-    env.reset()
+    env.reset(test=True)
     reward_ll_sum = 0
     done_sum = 0
     average_dones = 0.
@@ -115,7 +116,7 @@ for update in range(1000000):
         env.stop_video_recording()
         env.turn_off_visualization()
 
-        env.reset()
+        env.reset(test=True)
         env.save_scaling(saver.data_dir, str(update))
 
     # actual training
