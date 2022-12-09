@@ -121,6 +121,9 @@ class ENVIRONMENT : public RaisimGymEnv {
 
     rewards_.record("torque", aliengo_->getGeneralizedForce().squaredNorm());
     rewards_.record("forwardVel", std::min(4.0, bodyLinearVel_[0]));
+    rewards_.record("heading", 1/goal_dist_);
+    rewards_.record("touchGround", touch_ground_);
+    rewards_.record("test", 1);
 
     return rewards_.sum();
   }
@@ -135,6 +138,11 @@ class ENVIRONMENT : public RaisimGymEnv {
     bodyAngularVel_ = rot.e().transpose() * gv_.segment(3, 3);
 
     goal_position = obstacles_.back()->getPosition();
+
+    for(auto& contact: aliengo_->getContacts())
+      if(footIndices_.find(contact.getlocalBodyIndex()) == footIndices_.end())
+        touch_ground_ = 1;
+
     is_success_ = isSucessState();
     if(visualizable_)
       goal_sphere->setPosition(goal_position);
@@ -163,6 +171,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     /// if the contact body is not feet
     for(auto& contact: aliengo_->getContacts())
       if(footIndices_.find(contact.getlocalBodyIndex()) == footIndices_.end())
+        touch_ground_ = 1;
         return true;
 
     if (is_success_)
@@ -175,6 +184,7 @@ class ENVIRONMENT : public RaisimGymEnv {
   bool isSucessState() {
     double offset = 0.05; //Verifying success state
     double distance = (aliengo_->getBasePosition().e() - goal_position).head(2).norm(); // distance between robot base pos, goal pos
+    goal_dist_ = (aliengo_->getBasePosition().e() - goal_position).head(2).norm();
     if (distance <= offset)
       return true;
     return false;
@@ -275,7 +285,8 @@ class ENVIRONMENT : public RaisimGymEnv {
   raisim::Visuals *goal_sphere;
   Eigen::Vector3d goal_position;
   bool is_success_ = false;
-
+  float goal_dist_ = 10000;
+  float touch_ground_ = 0;
 
   /// these variables are not in use. They are placed to show you how to create a random number sampler.
   std::normal_distribution<double> normDist_;
